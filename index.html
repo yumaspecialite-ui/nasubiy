@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>リール台本メーカー</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      padding: 40px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 6px;
+    }
+    .hint { font-weight: 400; color: #999; font-size: 12px; }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus { outline: none; border-color: #667eea; }
+
+    .style-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .style-option { position: relative; }
+    .style-option input { position: absolute; opacity: 0; }
+    .style-option label {
+      display: flex; align-items: center; justify-content: center;
+      padding: 14px 10px; border: 2px solid #e0e0e0; border-radius: 10px;
+      cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; text-align: center;
+    }
+    .style-option input:checked + label {
+      border-color: #667eea; background: #f0f2ff; color: #667eea; font-weight: 600;
+    }
+    .style-option label:hover { border-color: #b0b8f0; }
+
+    .duration-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .duration-option { position: relative; }
+    .duration-option input { position: absolute; opacity: 0; }
+    .duration-option label {
+      display: flex; align-items: center; justify-content: center;
+      padding: 12px 8px; border: 2px solid #e0e0e0; border-radius: 10px;
+      cursor: pointer; font-size: 15px; font-weight: 500; transition: all 0.2s;
+    }
+    .duration-option input:checked + label {
+      border-color: #764ba2; background: #f5f0ff; color: #764ba2; font-weight: 600;
+    }
+    .duration-option label:hover { border-color: #c0a8e0; }
+
+    button {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff; border: none; border-radius: 12px;
+      font-size: 18px; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s; margin-top: 10px;
+    }
+    button:hover { opacity: 0.9; }
+    button:active { transform: scale(0.98); }
+
+    /* ===== 結果画面 ===== */
+    #result { display: none; }
+    .result-container {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      padding: 40px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .result-container h1 { text-align: left; font-size: 22px; margin-bottom: 20px; }
+    .meta {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px 20px; background: #f8f8fc; border-radius: 12px;
+      padding: 16px 20px; margin-bottom: 28px; font-size: 14px;
+    }
+    .meta-item { display: flex; gap: 8px; }
+    .meta-label { color: #888; white-space: nowrap; }
+    .meta-value { color: #333; font-weight: 500; }
+
+    .section-card {
+      border: 1px solid #e8e8f0; border-radius: 14px;
+      padding: 20px; margin-bottom: 16px; transition: box-shadow 0.2s;
+    }
+    .section-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+    .section-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    }
+    .section-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff; border-radius: 50%; font-size: 13px; font-weight: 700; margin-right: 10px;
+    }
+    .section-name { font-weight: 700; font-size: 16px; color: #333; }
+    .section-time {
+      background: #f0f2ff; color: #667eea; padding: 4px 12px;
+      border-radius: 20px; font-size: 13px; font-weight: 600;
+    }
+    .section-body dt {
+      font-size: 12px; font-weight: 600; color: #999; margin-top: 10px; margin-bottom: 4px;
+    }
+    .section-body dd {
+      font-size: 15px; color: #333; line-height: 1.6;
+      padding: 8px 12px; background: #fafafa; border-radius: 8px;
+    }
+    .hashtags {
+      background: #f8f8fc; border-radius: 12px; padding: 16px 20px; margin-top: 24px;
+    }
+    .hashtags h3 { font-size: 14px; color: #888; margin-bottom: 8px; }
+    .hashtags p { font-size: 14px; color: #667eea; line-height: 1.8; word-break: break-all; }
+
+    .copy-area { margin-top: 24px; }
+    .copy-area summary { cursor: pointer; font-size: 14px; color: #888; margin-bottom: 8px; }
+    .copy-area pre {
+      background: #1e1e2e; color: #cdd6f4; padding: 20px; border-radius: 12px;
+      font-size: 13px; line-height: 1.6; overflow-x: auto; white-space: pre-wrap; word-break: break-all;
+    }
+    .copy-btn {
+      display: inline-block; margin-top: 8px; padding: 8px 20px;
+      background: #667eea; color: #fff; border: none; border-radius: 8px;
+      font-size: 14px; cursor: pointer;
+    }
+    .copy-btn:hover { opacity: 0.85; }
+    .actions { display: flex; gap: 12px; margin-top: 30px; }
+    .btn {
+      flex: 1; text-align: center; padding: 14px; border-radius: 12px;
+      font-size: 15px; font-weight: 600; text-decoration: none;
+      cursor: pointer; transition: opacity 0.2s; border: none;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-secondary { background: #f0f2ff; color: #667eea; }
+  </style>
+</head>
+<body>
+
+<!-- ===== 入力フォーム ===== -->
+<div id="form">
+  <div class="container">
+    <h1>Instagram リール台本メーカー</h1>
+    <p class="subtitle">トピックを入力するだけで台本が完成</p>
+
+    <label for="topic">トピック・テーマ</label>
+    <input type="text" id="topic" placeholder="例: 朝のスキンケア、節約術、カフェ巡り">
+
+    <label>スタイル</label>
+    <div class="style-grid">
+      <div class="style-option"><input type="radio" id="s_tips" name="style" value="tips" checked><label for="s_tips">ノウハウ・Tips</label></div>
+      <div class="style-option"><input type="radio" id="s_story" name="style" value="story"><label for="s_story">ストーリー・体験談</label></div>
+      <div class="style-option"><input type="radio" id="s_ranking" name="style" value="ranking"><label for="s_ranking">ランキング・まとめ</label></div>
+      <div class="style-option"><input type="radio" id="s_before_after" name="style" value="before_after"><label for="s_before_after">ビフォーアフター</label></div>
+      <div class="style-option"><input type="radio" id="s_tutorial" name="style" value="tutorial"><label for="s_tutorial">チュートリアル</label></div>
+      <div class="style-option"><input type="radio" id="s_vlog" name="style" value="vlog"><label for="s_vlog">Vlog・日常</label></div>
+    </div>
+
+    <label>動画の長さ</label>
+    <div class="duration-grid">
+      <div class="duration-option"><input type="radio" id="d_15" name="duration" value="15"><label for="d_15">15秒</label></div>
+      <div class="duration-option"><input type="radio" id="d_30" name="duration" value="30" checked><label for="d_30">30秒</label></div>
+      <div class="duration-option"><input type="radio" id="d_60" name="duration" value="60"><label for="d_60">60秒</label></div>
+      <div class="duration-option"><input type="radio" id="d_90" name="duration" value="90"><label for="d_90">90秒</label></div>
+    </div>
+
+    <label for="target">ターゲット層 <span class="hint">（任意）</span></label>
+    <input type="text" id="target" placeholder="例: 20代女性、大学生、子育てママ">
+
+    <label for="hook">カスタムフック <span class="hint">（任意・空欄で自動生成）</span></label>
+    <input type="text" id="hook" placeholder="例: これ知らないと絶対損する！">
+
+    <button onclick="generate()">台本を作成する</button>
+  </div>
+</div>
+
+<!-- ===== 結果画面 ===== -->
+<div id="result">
+  <div class="result-container">
+    <h1 id="r_title"></h1>
+    <div class="meta" id="r_meta"></div>
+    <div id="r_sections"></div>
+    <div class="hashtags">
+      <h3>ハッシュタグ</h3>
+      <p id="r_hashtags"></p>
+    </div>
+    <details class="copy-area">
+      <summary>テキスト版をコピーする</summary>
+      <pre id="r_text"></pre>
+      <button class="copy-btn" onclick="copyText()">コピー</button>
+    </details>
+    <div class="actions">
+      <button class="btn btn-secondary" onclick="backToForm()">もう一度作る</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== テンプレートデータ =====
+const HOOKS = {
+  tips: [
+    "知らないと損する{topic}の裏ワザ",
+    "{topic}で失敗する人の共通点、知ってる？",
+    "これ知ってるだけで{topic}が劇的に変わる",
+    "プロが教える{topic}の意外なコツ",
+    "{topic}、まだそのやり方でやってるの？"
+  ],
+  story: [
+    "{topic}を始めて人生が変わった話",
+    "正直に言います。{topic}で大失敗しました",
+    "{topic}をやめようと思った日の話",
+    "あの時{topic}を始めてなかったら…",
+    "{topic}で一番衝撃を受けた瞬間"
+  ],
+  ranking: [
+    "{topic}のおすすめTOP3、発表します",
+    "ガチで使える{topic}ランキング",
+    "プロが選ぶ{topic}ベスト3",
+    "絶対に外せない{topic}を3つ紹介",
+    "{topic}、結局これが最強でした"
+  ],
+  before_after: [
+    "{topic}のビフォーアフターがヤバい",
+    "たった1ヶ月で{topic}がここまで変わった",
+    "{topic}を変えたら別人になった",
+    "この変化、信じられる？{topic}の力",
+    "{topic}で人生変わりすぎた件"
+  ],
+  tutorial: [
+    "{topic}のやり方、完全解説します",
+    "初心者でもできる{topic}の方法",
+    "3ステップで分かる{topic}のやり方",
+    "{topic}の始め方をゼロから教えます",
+    "これを見れば{topic}が今日からできる"
+  ],
+  vlog: [
+    "{topic}な1日に密着",
+    "{topic}のリアルな日常をお見せします",
+    "今日は{topic}な1日でした",
+    "{topic}のある暮らし",
+    "{topic}ルーティン、見せちゃいます"
+  ]
+};
+
+const STRUCTURES = {
+  tips: {
+    label: "ノウハウ・Tips", hookRatio: 0.15,
+    sections: [
+      { name: "問題提起", ratio: 0.15, prompt: "視聴者が抱えている悩み・課題を提示してください", visual: "テキスト表示 or 問いかけの表情" },
+      { name: "ポイント解説", ratio: 0.50, prompt: "メインのノウハウ・Tipsを具体的に説明してください", visual: "ステップごとの映像 or テロップでポイント表示" },
+      { name: "まとめ", ratio: 0.10, prompt: "要点を短くまとめてください", visual: "まとめテロップ" }
+    ], ctaRatio: 0.10
+  },
+  story: {
+    label: "ストーリー・体験談", hookRatio: 0.15,
+    sections: [
+      { name: "背景・きっかけ", ratio: 0.20, prompt: "ストーリーの背景やきっかけを説明してください", visual: "過去の写真・映像 or ナレーション" },
+      { name: "展開・転機", ratio: 0.35, prompt: "何が起きたか、転機となった出来事を語ってください", visual: "臨場感のある映像 or 表情のクローズアップ" },
+      { name: "結果・学び", ratio: 0.20, prompt: "結果どうなったか、何を学んだかを伝えてください", visual: "ビフォーアフター or 感情の表現" }
+    ], ctaRatio: 0.10
+  },
+  ranking: {
+    label: "ランキング・まとめ", hookRatio: 0.10,
+    sections: [
+      { name: "第3位", ratio: 0.25, prompt: "3位のアイテム・ポイントを紹介してください", visual: "商品映像 + ランキング表示" },
+      { name: "第2位", ratio: 0.25, prompt: "2位のアイテム・ポイントを紹介してください", visual: "商品映像 + ランキング表示" },
+      { name: "第1位", ratio: 0.30, prompt: "1位のアイテム・ポイントを紹介してください（最も詳しく）", visual: "商品映像 + 1位演出 + テロップ" }
+    ], ctaRatio: 0.10
+  },
+  before_after: {
+    label: "ビフォーアフター", hookRatio: 0.10,
+    sections: [
+      { name: "ビフォー（変化前）", ratio: 0.20, prompt: "変化する前の状態を説明してください", visual: "ビフォーの映像・写真" },
+      { name: "プロセス（やったこと）", ratio: 0.35, prompt: "何をしたか、変化のプロセスを説明してください", visual: "過程のタイムラプス or ステップ映像" },
+      { name: "アフター（変化後）", ratio: 0.25, prompt: "変化後の状態を見せ、感想を述べてください", visual: "アフターの映像 + リアクション" }
+    ], ctaRatio: 0.10
+  },
+  tutorial: {
+    label: "チュートリアル・やり方", hookRatio: 0.10,
+    sections: [
+      { name: "準備・必要なもの", ratio: 0.15, prompt: "必要なものや前提条件を説明してください", visual: "材料・道具の一覧表示" },
+      { name: "ステップ解説", ratio: 0.50, prompt: "手順をステップごとに説明してください", visual: "手元のクローズアップ + 手順テロップ" },
+      { name: "完成・ポイント", ratio: 0.15, prompt: "完成形を見せ、成功のポイントを伝えてください", visual: "完成品の映像 + ポイントテロップ" }
+    ], ctaRatio: 0.10
+  },
+  vlog: {
+    label: "Vlog・日常", hookRatio: 0.10,
+    sections: [
+      { name: "導入（場面設定）", ratio: 0.15, prompt: "今日の場面・シチュエーションを紹介してください", visual: "場所の全体映像 or 朝の映像" },
+      { name: "メインシーン", ratio: 0.45, prompt: "メインの活動・出来事を見せてください", visual: "自然体の映像、複数カット" },
+      { name: "感想・締め", ratio: 0.20, prompt: "感想やその日の気づきを語ってください", visual: "カメラに向かってトーク or テロップ" }
+    ], ctaRatio: 0.10
+  }
+};
+
+const STYLE_TAGS = {
+  tips: ["#豆知識", "#ライフハック", "#裏ワザ"],
+  story: ["#体験談", "#ストーリー", "#エピソード"],
+  ranking: ["#ランキング", "#おすすめ", "#ベスト3"],
+  before_after: ["#ビフォーアフター", "#beforeafter", "#変化"],
+  tutorial: ["#やり方", "#howto", "#チュートリアル"],
+  vlog: ["#vlog", "#日常", "#ルーティン"]
+};
+
+const BGM = {
+  tips: "テンポの良いポップ系BGM（120BPM前後）",
+  story: "エモーショナルなピアノ or アコースティック系",
+  ranking: "ワクワク感のあるアップテンポBGM",
+  before_after: "ドラマチックな展開のある楽曲（静→動）",
+  tutorial: "落ち着いたローファイ系BGM",
+  vlog: "おしゃれなカフェ系BGM or ローファイ"
+};
+
+// ===== 生成ロジック =====
+function generate() {
+  const topic = document.getElementById('topic').value.trim();
+  if (!topic) { alert('トピックを入力してください'); return; }
+
+  const style = document.querySelector('input[name="style"]:checked').value;
+  const duration = parseInt(document.querySelector('input[name="duration"]:checked').value);
+  const target = document.getElementById('target').value.trim() || '指定なし';
+  const customHook = document.getElementById('hook').value.trim();
+
+  const struct = STRUCTURES[style];
+  const totalSec = duration;
+
+  // フック
+  const hookSec = Math.max(2, Math.round(totalSec * struct.hookRatio));
+  const hookText = customHook || HOOKS[style][Math.floor(Math.random() * HOOKS[style].length)].replace(/\{topic\}/g, topic);
+
+  // セクション組み立て
+  const allSections = [];
+  allSections.push({
+    name: "フック（つかみ）", dur: hookSec,
+    content: hookText, caption: hookText,
+    visual: "視聴者の手を止める演出。テロップ大きめ。"
+  });
+
+  struct.sections.forEach(s => {
+    allSections.push({
+      name: s.name, dur: Math.max(2, Math.round(totalSec * s.ratio)),
+      content: `【${s.prompt}】`, caption: "", visual: s.visual
+    });
+  });
+
+  const ctaSec = Math.max(2, Math.round(totalSec * struct.ctaRatio));
+  allSections.push({
+    name: "CTA（行動喚起）", dur: ctaSec,
+    content: "いいね・保存・フォローよろしくお願いします！",
+    caption: "フォローで最新情報をチェック！",
+    visual: "フォローボタンのアニメーション or テロップ"
+  });
+
+  const totalDur = allSections.reduce((a, s) => a + s.dur, 0);
+  const title = `${topic}｜${struct.label}リール台本`;
+  const hashtags = [`#${topic.replace(/\s/g, '')}`, ...STYLE_TAGS[style], "#リール", "#reels", "#インスタ", "#instagram"];
+  const bgm = BGM[style];
+
+  // 結果表示
+  document.getElementById('r_title').textContent = title;
+  document.getElementById('r_meta').innerHTML = `
+    <div class="meta-item"><span class="meta-label">トピック:</span><span class="meta-value">${esc(topic)}</span></div>
+    <div class="meta-item"><span class="meta-label">スタイル:</span><span class="meta-value">${esc(struct.label)}</span></div>
+    <div class="meta-item"><span class="meta-label">長さ:</span><span class="meta-value">${duration}秒</span></div>
+    <div class="meta-item"><span class="meta-label">ターゲット:</span><span class="meta-value">${esc(target)}</span></div>
+    <div class="meta-item"><span class="meta-label">合計:</span><span class="meta-value">約${totalDur}秒</span></div>
+    <div class="meta-item"><span class="meta-label">BGM:</span><span class="meta-value">${esc(bgm)}</span></div>
+  `;
+
+  let sectionsHtml = '';
+  allSections.forEach((s, i) => {
+    sectionsHtml += `
+      <div class="section-card">
+        <div class="section-header">
+          <div><span class="section-num">${i + 1}</span><span class="section-name">${esc(s.name)}</span></div>
+          <span class="section-time">${s.dur}秒</span>
+        </div>
+        <dl class="section-body">
+          <dt>セリフ</dt><dd>${esc(s.content)}</dd>
+          ${s.caption ? `<dt>テロップ</dt><dd>${esc(s.caption)}</dd>` : ''}
+          ${s.visual ? `<dt>映像メモ</dt><dd>${esc(s.visual)}</dd>` : ''}
+        </dl>
+      </div>`;
+  });
+  document.getElementById('r_sections').innerHTML = sectionsHtml;
+  document.getElementById('r_hashtags').textContent = hashtags.join(' ');
+
+  // テキスト版
+  let txt = '='.repeat(50) + '\n';
+  txt += `  ${title}\n`;
+  txt += '='.repeat(50) + '\n\n';
+  txt += `トピック:       ${topic}\n`;
+  txt += `スタイル:       ${struct.label}\n`;
+  txt += `動画の長さ:     ${duration}秒\n`;
+  txt += `ターゲット:     ${target}\n`;
+  txt += `合計時間:       約${totalDur}秒\n`;
+  txt += `BGM:            ${bgm}\n\n`;
+  txt += '-'.repeat(50) + '\n  台本\n' + '-'.repeat(50) + '\n';
+  allSections.forEach((s, i) => {
+    txt += `\n[${i+1}] ${s.name}（${s.dur}秒）\n`;
+    txt += `    セリフ: ${s.content}\n`;
+    if (s.caption) txt += `    テロップ: ${s.caption}\n`;
+    if (s.visual) txt += `    映像メモ: ${s.visual}\n`;
+  });
+  txt += '\n' + '-'.repeat(50) + '\n  ハッシュタグ\n' + '-'.repeat(50) + '\n\n';
+  txt += hashtags.join(' ') + '\n';
+  document.getElementById('r_text').textContent = txt;
+
+  document.getElementById('form').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function backToForm() {
+  document.getElementById('form').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
+function copyText() {
+  const text = document.getElementById('r_text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'コピーしました!';
+    setTimeout(() => { btn.textContent = 'コピー'; }, 2000);
+  });
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>

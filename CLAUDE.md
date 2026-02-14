@@ -5,42 +5,54 @@ This file provides guidance for AI assistants working with the **nasubiy** repos
 ## Repository Overview
 
 - **Repository**: `yumaspecialite-ui/nasubiy`
-- **Status**: Newly initialized — no source code, build configuration, or tests exist yet.
+- **Description**: Instagram リール動画の台本作成ツール
+- **Language**: Python 3.9+
 
 ## Project Structure
 
 ```
 nasubiy/
-├── CLAUDE.md        # AI assistant guidance (this file)
-└── .git/            # Git repository metadata
+├── CLAUDE.md              # AI assistant guidance (this file)
+├── pyproject.toml         # プロジェクト設定・依存関係
+├── reel_script/           # メインパッケージ
+│   ├── __init__.py
+│   ├── __main__.py        # python -m reel_script エントリーポイント
+│   ├── cli.py             # CLIインターフェース（対話モード + 引数モード）
+│   ├── formatter.py       # 出力フォーマッター（text / markdown / json）
+│   ├── generator.py       # 台本生成ロジック
+│   ├── models.py          # データモデル（ReelScript, ReelDuration, ReelStyle等）
+│   └── templates/         # テンプレートデータ
+│       ├── __init__.py
+│       ├── hooks.py       # フック（冒頭のつかみ）テンプレート
+│       └── structures.py  # スタイル別の台本構成テンプレート
+└── tests/                 # テストディレクトリ
 ```
-
-This repository is empty and awaiting initial project setup. Update this section as the project grows.
 
 ## Development Setup
 
-No dependencies or build tools have been configured yet. Once the project is initialized, document:
+- **Language**: Python 3.9+
+- **Dependencies**: 標準ライブラリのみ（外部依存なし）
+- **Install**: `pip install -e .`
+- **Run**: `python -m reel_script` または `reel-script`
 
-- Language and framework
-- How to install dependencies
-- How to run the dev server
-- How to build for production
+## Usage
+
+```bash
+# 対話モード
+python -m reel_script
+
+# コマンドライン引数モード
+python -m reel_script --topic "朝のルーティン" --style vlog --duration 30
+python -m reel_script --topic "Python入門" --style tutorial --duration 60 --format markdown -o script.md
+```
 
 ## Testing
 
-No test framework is configured. Once added, document:
+テストは `tests/` ディレクトリに配置。`pytest` で実行。
 
-- How to run tests (`npm test`, `pytest`, etc.)
-- Test file naming conventions
-- Where test files live relative to source
-
-## Linting and Formatting
-
-No linters or formatters are configured. Once added, document:
-
-- Lint command
-- Format command
-- Editor/IDE integration notes
+```bash
+pytest tests/
+```
 
 ## Git Conventions
 

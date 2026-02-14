@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "reel-script"
+version = "0.1.0"
+description = "Instagram リール動画の台本作成ツール"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+reel-script = "reel_script.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["reel_script*"]

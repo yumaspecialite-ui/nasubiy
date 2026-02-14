@@ -7,10 +7,11 @@ name = "reel-script"
 version = "0.1.0"
 description = "Instagram リール動画の台本作成ツール"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = ["flask>=3.0"]
 
 [project.scripts]
 reel-script = "reel_script.cli:main"
+reel-script-web = "reel_script.web:run"
 
 [tool.setuptools.packages.find]
 include = ["reel_script*"]

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ script.title }} - リール台本メーカー</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      padding: 40px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 20px;
+      background: #f8f8fc;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      font-size: 14px;
+    }
+    .meta-item {
+      display: flex;
+      gap: 8px;
+    }
+    .meta-label {
+      color: #888;
+      white-space: nowrap;
+    }
+    .meta-value {
+      color: #333;
+      font-weight: 500;
+    }
+    .section-card {
+      border: 1px solid #e8e8f0;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: box-shadow 0.2s;
+    }
+    .section-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .section-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 10px;
+    }
+    .section-name {
+      font-weight: 700;
+      font-size: 16px;
+      color: #333;
+    }
+    .section-time {
+      background: #f0f2ff;
+      color: #667eea;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .section-body dt {
+      font-size: 12px;
+      font-weight: 600;
+      color: #999;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
+    .section-body dd {
+      font-size: 15px;
+      color: #333;
+      line-height: 1.6;
+      padding: 8px 12px;
+      background: #fafafa;
+      border-radius: 8px;
+    }
+    .hashtags {
+      background: #f8f8fc;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-top: 24px;
+    }
+    .hashtags h3 {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .hashtags p {
+      font-size: 14px;
+      color: #667eea;
+      line-height: 1.8;
+      word-break: break-all;
+    }
+    .copy-area {
+      margin-top: 24px;
+    }
+    .copy-area summary {
+      cursor: pointer;
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .copy-area pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .copy-btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 20px;
+      background: #667eea;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .copy-btn:hover { opacity: 0.85; }
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 30px;
+    }
+    .btn {
+      flex: 1;
+      text-align: center;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+    }
+    .btn-secondary {
+      background: #f0f2ff;
+      color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>{{ script.title }}</h1>
+
+    <div class="meta">
+      <div class="meta-item">
+        <span class="meta-label">トピック:</span>
+        <span class="meta-value">{{ script.topic }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">スタイル:</span>
+        <span class="meta-value">{{ script.style.label }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">長さ:</span>
+        <span class="meta-value">{{ script.duration.label }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">ターゲット:</span>
+        <span class="meta-value">{{ script.target_audience }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">合計:</span>
+        <span class="meta-value">約{{ script.total_duration }}秒</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">BGM:</span>
+        <span class="meta-value">{{ script.bgm_note }}</span>
+      </div>
+    </div>
+
+    {% for section in script.all_sections %}
+    <div class="section-card">
+      <div class="section-header">
+        <div>
+          <span class="section-num">{{ loop.index }}</span>
+          <span class="section-name">{{ section.name }}</span>
+        </div>
+        <span class="section-time">{{ section.duration_sec }}秒</span>
+      </div>
+      <dl class="section-body">
+        <dt>セリフ</dt>
+        <dd>{{ section.content }}</dd>
+        {% if section.caption %}
+        <dt>テロップ</dt>
+        <dd>{{ section.caption }}</dd>
+        {% endif %}
+        {% if section.visual_note %}
+        <dt>映像メモ</dt>
+        <dd>{{ section.visual_note }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+    {% endfor %}
+
+    <div class="hashtags">
+      <h3>ハッシュタグ</h3>
+      <p>{{ script.hashtags | join(' ') }}</p>
+    </div>
+
+    <details class="copy-area">
+      <summary>テキスト版をコピーする</summary>
+      <pre id="textOutput">{{ text_output }}</pre>
+      <button class="copy-btn" onclick="copyText()">コピー</button>
+    </details>
+
+    <div class="actions">
+      <a href="/" class="btn btn-secondary">もう一度作る</a>
+    </div>
+  </div>
+
+  <script>
+    function copyText() {
+      const text = document.getElementById('textOutput').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'コピーしました!';
+        setTimeout(() => { btn.textContent = 'コピー'; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
